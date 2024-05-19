@@ -8,29 +8,29 @@ import os
 run=True  
 delay=5  # seconds        # A 10 sec delay will on average consume 450 mb of data in a day   (0.05 MB/request)
 mode="local"   #mode can be "public" or "local"
-side_dir=os.listdir("./PushingFolder")
+curr_dir=os.listdir(".")
 id="kunalvirwal"
 backlog = False    #This variable becomes True when change in IP has be detected and committed but is not pushed to remote
 
+if "PushingFolder" not in curr_dir:
+    base_dir=os.getcwd()
+    path=os.path.join(base_dir,"PushingFolder")
+    os.mkdir(path)
+
+side_dir= os.listdir("PushingFolder")
 
 def IP_collector(mode):
-    
     if mode == "public":
         try:
             a=ip.get()
-            
             if len(a)<7 or len(a)>15:   # the length of an IPV4 address is 13. This way if it returns an IPV6 address it will not be pushed
                 return None
             return a
 
-
         except Exception as e:
-           
-
             if str(e)=="all server queries failed":
                 print("Unable to fetch IP")
                 return None
-            
             else: 
                 k=str(e).split()
                 if len(k[2])>len(k[4]):              #In the exception statements the 2nd and the 4th index words are the IPV4 and IPV6 addresses in random order so we check the lengths to find the smaller one
@@ -39,22 +39,19 @@ def IP_collector(mode):
                     a=k[2]
                 return(a)
             
-
     if mode == "local":
         s= socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.connect(('10.0.0.0',0))
         return (s.getsockname())[0]
 
 
-
-
-
-
-
 # parser=argparse.ArgumentParser()
 # parser.add_argument('id', help='The github ID to be used')
 # args=parser.parse_args()
 # print(args.id)
+
+
+
 
 
 
@@ -85,9 +82,15 @@ if "IPFile" not in side_dir:
             f.close()
             break
 
+
+
+
+
+
 origin = repo.remotes["origin"]
 repo.git.branch("--set-upstream-to=origin/main", "main")
 print("Remote origin set.")
+
 
 # Accessing the last IP
 f=open("./PushingFolder/IPFile",'r')
@@ -108,8 +111,8 @@ while run:
     if a==lastIP:
         print("same")
     else:
-        origin.fetch()
-        origin.pull()
+        # origin.fetch()
+        # origin.pull()
         # Clears the old IP and adds the new IP
         rf=open("./PushingFolder/IPFile",'w')
         rf.write(a)
