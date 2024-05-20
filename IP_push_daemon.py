@@ -9,7 +9,7 @@ run=True
 delay=5  # seconds        # A 10 sec delay will on average consume 450 mb of data in a day   (0.05 MB/request)
 mode="local"   #mode can be "public" or "local"
 curr_dir=os.listdir(".")
-id="kunalvirwal"
+id="kunalvirwal-2"
 backlog = False    #This variable becomes True when change in IP has be detected and committed but is not pushed to remote
 
 if "PushingFolder" not in curr_dir:
@@ -18,6 +18,9 @@ if "PushingFolder" not in curr_dir:
     os.mkdir(path)
 
 side_dir= os.listdir("PushingFolder")
+
+
+
 
 def IP_collector(mode):
     if mode == "public":
@@ -48,6 +51,8 @@ def IP_collector(mode):
             except:
                 return None
 
+
+
 # parser=argparse.ArgumentParser()
 # parser.add_argument('id', help='The github ID to be used')
 # args=parser.parse_args()
@@ -70,20 +75,31 @@ if ".git" not in side_dir:
                 while True:
                     print("IPfile not found!\nGenerating IPFile...")
                     f=open("./PushingFolder/IPFile",'w')
-                    a=IP_collector(mode)
-                    if a==None:
-                        continue
-                    else:
-                        f.seek(0)
-                        f.write(a)
-                        f.close()
-                        origin = repo.remotes["origin"]
-                        origin.push()
-                        break
+                    f.close()                  
+
+                    origin = repo.remotes["origin"]
+                    # new_branch = repo.create_head('main') 
+                    # new_branch.checkout() 
+
+                    curr=time.ctime()
+                    base_dir=os.getcwd()
+                    file=os.path.join(base_dir,"PushingFolder","IPFile")
+                    add_files=[file]
+                    repo.index.add(add_files)
+                    msg="Updating IP: "+curr
+                    repo.index.commit(msg)
+                    while True:
+                        try:
+                            origin.push()
+                            break
+                        except Exception as e:
+                            print("Unable to push changes to origin")
+                    break
 
             break
         except Exception as e:
-            print("Unable to clone repo!")
+            print("Unable to clone repo!",e)
+            assert False
 
 else:
     print("Git History detected!")
@@ -98,14 +114,13 @@ else:
 
 
 
-# existing_branch = repo.heads['main'] 
-# existing_branch.checkout() 
+
 repo.git.branch("--set-upstream-to=origin/main", "main")
 print("Remote origin set.")
 
 
 # Accessing the last IP
-f=open("./PushingFolder/IPFile",'r')
+f=open("./PushingFolder/IPFile",'a+')
 f.seek(0)
 
 
@@ -154,4 +169,3 @@ while run:
             print("Unable to push changes to origin")
       
     time.sleep(delay)
-        
