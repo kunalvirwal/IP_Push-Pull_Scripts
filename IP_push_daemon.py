@@ -40,10 +40,13 @@ def IP_collector(mode):
                 return(a)
             
     if mode == "local":
-        s= socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.connect(('10.0.0.0',0))
-        return (s.getsockname())[0]
-
+        while True:
+            try:
+                s= socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                s.connect(('10.0.0.0',0))
+                return (s.getsockname())[0]
+            except:
+                return None
 
 # parser=argparse.ArgumentParser()
 # parser.add_argument('id', help='The github ID to be used')
@@ -56,11 +59,28 @@ def IP_collector(mode):
 
 
 if ".git" not in side_dir:
-    print("IPfile git history not found!\nCloning",f"https://github.com/{id}/IPHistory.git...")
+    print("IPfile git history not found!\nCloning",f"git@github.com:{id}/IPHistory.git...")
     while True:
         try:
-            repo=Repo.clone_from(f"https://github.com/{id}/IPHistory.git","./PushingFolder")
+            repo=Repo.clone_from(f"git@github.com:{id}/IPHistory.git","./PushingFolder")
             print("Repo cloned successfully!")
+            side_dir= os.listdir("PushingFolder")
+
+            if "IPFile" not in side_dir:
+                while True:
+                    print("IPfile not found!\nGenerating IPFile...")
+                    f=open("./PushingFolder/IPFile",'w')
+                    a=IP_collector(mode)
+                    if a==None:
+                        continue
+                    else:
+                        f.seek(0)
+                        f.write(a)
+                        f.close()
+                        origin = repo.remotes["origin"]
+                        origin.push()
+                        break
+
             break
         except Exception as e:
             print("Unable to clone repo!")
@@ -68,26 +88,18 @@ if ".git" not in side_dir:
 else:
     print("Git History detected!")
     repo=Repo("./PushingFolder")
+    origin = repo.remotes["origin"]
 
-if "IPFile" not in side_dir:
-    while True:
-        print("IPfile not found!\nGenerating IPFile...")
-        f=open("./PushingFolder/IPFile",'w')
-        a=IP_collector(mode)
-        if a==None:
-            continue
-        else:
-            f.seek(0)
-            f.write(a)
-            f.close()
-            break
+    
 
 
 
 
 
 
-origin = repo.remotes["origin"]
+
+# existing_branch = repo.heads['main'] 
+# existing_branch.checkout() 
 repo.git.branch("--set-upstream-to=origin/main", "main")
 print("Remote origin set.")
 
