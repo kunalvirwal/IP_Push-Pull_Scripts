@@ -9,7 +9,7 @@ run=True
 delay=5  # seconds        # A 10 sec delay will on average consume 450 mb of data in a day   (0.05 MB/request)
 mode="local"   #mode can be "public" or "local"
 curr_dir=os.listdir(".")
-id="kunalvirwal-2"
+id="kunalvirwal"
 backlog = False    #This variable becomes True when change in IP has be detected and committed but is not pushed to remote
 
 if "PushingFolder" not in curr_dir:
@@ -93,7 +93,7 @@ if ".git" not in side_dir:
                             origin.push()
                             break
                         except Exception as e:
-                            print("Unable to push changes to origin")
+                            print("Unable to push changes to origin",e)
                     break
 
             break
@@ -104,17 +104,10 @@ if ".git" not in side_dir:
 else:
     print("Git History detected!")
     repo=Repo("./PushingFolder")
-    origin = repo.remotes["origin"]
-
-    
 
 
 
-
-
-
-
-
+origin = repo.remotes["origin"]
 repo.git.branch("--set-upstream-to=origin/main", "main")
 print("Remote origin set.")
 
@@ -166,6 +159,6 @@ while run:
             origin.push()
             backlog=False
         except Exception as e:
-            print("Unable to push changes to origin")
+            print("Unable to push changes to origin",e)
       
     time.sleep(delay)
