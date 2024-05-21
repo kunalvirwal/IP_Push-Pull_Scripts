@@ -110,7 +110,7 @@ else:
 origin = repo.remotes["origin"]
 repo.git.branch("--set-upstream-to=origin/main", "main")
 print("Remote origin set.")
-
+origin.pull()
 
 # Accessing the last IP
 f=open("./PushingFolder/IPFile",'a+')
@@ -132,7 +132,7 @@ while run:
         print("same")
     else:
         # origin.fetch()
-        # origin.pull()
+
         # Clears the old IP and adds the new IP
         rf=open("./PushingFolder/IPFile",'w')
         rf.write(a)
@@ -150,11 +150,12 @@ while run:
         try:
             origin.push()
         except Exception as e:
-            print("Unable to push changes to origin")
+            print("Unable to push changes to origin",e)
             backlog=True
         print("Different")
 
-    if backlog:
+    if backlog:                 # If the code is unable to push the it puts backlog = True and thus trys to push in each iteration till backlog becomes False
+        print("Backlog exists")
         try:
             origin.push()
             backlog=False
